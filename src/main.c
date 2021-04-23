@@ -1,33 +1,12 @@
-#include <drivers/gpio.h>
-
-#define SLEEP_TIME_MS 500
-
-#define LED0_NODE DT_ALIAS(led0)
-#define LED0 DT_GPIO_LABEL(LED0_NODE, gpios)
-#define PIN DT_GPIO_PIN(LED0_NODE, gpios)
-#define FLAGS DT_GPIO_FLAGS(LED0_NODE, gpios)
+#include "led.h"
 
 void main (void)
 {
-#ifdef CONFIG_BOARD_MIMXRT1020_EVK
-    const struct device *dev;
+    dutchess_led_init();
 
-    if ((dev = device_get_binding(LED0)) == NULL)
+    while (1)
     {
-        return;
+        int32_t durations_ms[] = {500, 500, 500, 1000, 1000, 1000, 500, 500, 500};
+        dutchess_led_blink(durations_ms, 9);
     }
-
-    if (gpio_pin_configure(dev, PIN, GPIO_OUTPUT_ACTIVE | FLAGS) < 0)
-    {
-        return;
-    }
-#endif
-
-#ifdef CONFIG_BOARD_MIMXRT1020_EVK
-    while (true)
-    {
-        gpio_pin_set(dev, PIN, !gpio_pin_get(dev, PIN));
-        k_msleep(SLEEP_TIME_MS);
-    }
-#endif
 }
