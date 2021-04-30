@@ -1,33 +1,25 @@
 #include <stdio.h>
 #include <drivers/gpio.h>
 
+#include "gpio.h"
 #include "relay.h"
 
 #define PIN 25 // D0 on the Arduino header.
 
-static const struct device *dev = NULL;
-
 void dutchess_relay_init ()
 {
-#ifdef CONFIG_BOARD_MIMXRT1020_EVK
-    if ((dev = device_get_binding("GPIO_1")) == NULL)
-    {
-        return;
-    }
-
-    if (gpio_pin_configure(dev, PIN, GPIO_OUTPUT_ACTIVE) < 0)
-    {
-        return;
-    }
-#endif
+    dutchess_gpio_configure(PIN);
 }
 
 void dutchess_relay_set (int value)
 {
-#ifdef CONFIG_BOARD_MIMXRT1020_EVK
-    if (dev)
-    {
-        gpio_pin_set(dev, PIN, value);
-    }
-#endif
+    // Relay is active low so invert the value here to abstract that.
+    dutchess_gpio_set(PIN, !value);
+}
+
+int dutchess_relay_state ()
+{
+    // As with the function above, need to invert the value so the rest of the
+    // application doesn't have to care that this device is active low.
+    return !dutchess_gpio_get(PIN);
 }

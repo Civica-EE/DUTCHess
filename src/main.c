@@ -1,3 +1,4 @@
+#include "gpio.h"
 #include "led.h"
 #include "relay.h"
 
@@ -5,6 +6,7 @@ void main (void)
 {
     int relay = 0;
 
+    dutchess_gpio_init();
     dutchess_led_init();
     dutchess_relay_init();
 
