@@ -6,4 +6,4 @@ find_package(Zephyr)
 
 project(DUTCHess)
 
-target_sources(app PRIVATE src/main.c src/led.c)
+target_sources(app PRIVATE src/main.c src/led.c src/relay.c)
