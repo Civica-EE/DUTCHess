@@ -12,5 +12,6 @@ project(DUTCHess)
 
 target_sources(app PRIVATE
     src/main.c
+    src/web.c
     lib/civetweb_libc_extensions/src/libc_extensions.c
 )
