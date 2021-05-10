@@ -22,6 +22,7 @@ typedef struct
 } storeData_t;
 
 storeData_t *getStoreData(void);
-void store(char *var, char *value, int valueLen);
+void updateStore(char *var, char *value, int valueLen);
+void saveStore(void);
 #endif
 

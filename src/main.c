@@ -55,7 +55,7 @@ unsigned long getIP(char *value)
 	return  IP(a,b,c,d);
 }
 
-void store(char *var, char *value, int valueLen)
+void updateStore(char *var, char *value, int valueLen)
 {
 	// process the variables
 	if ( valueLen <= 0 )
@@ -88,6 +88,10 @@ void store(char *var, char *value, int valueLen)
 	{
 		globalStore.controllerPort=atoi(value);
 	}
+}
+void saveStore(void)
+{
+	// save to flash...
 }
 
 void main (void)

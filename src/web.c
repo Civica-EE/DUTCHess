@@ -72,12 +72,13 @@ int configure (struct mg_connection *conn, void *cbdata)
 	char data[32];
 	int queryLen=strlen(req_info->query_string+1) ; // includes the NULL
 
-	store("ip",data,mg_get_var(req_info->query_string,queryLen,"ip",data,32)); // get the ip as a string
-	store("gateway",data,mg_get_var(req_info->query_string,queryLen,"gateway",data,32)); 
-	store("mask",data,mg_get_var(req_info->query_string,queryLen,"mask",data,32)); 
-	store("relaydefault",data,mg_get_var(req_info->query_string,queryLen,"relaydefault",data,32)); 
-	store("controller",data,mg_get_var(req_info->query_string,queryLen,"controller",data,32)); 
-	store("port",data,mg_get_var(req_info->query_string,queryLen,"port",data,32)); 
+	updateStore("ip",data,mg_get_var(req_info->query_string,queryLen,"ip",data,32)); // get the ip as a string
+	updateStore("gateway",data,mg_get_var(req_info->query_string,queryLen,"gateway",data,32)); 
+	updateStore("mask",data,mg_get_var(req_info->query_string,queryLen,"mask",data,32)); 
+	updateStore("relaydefault",data,mg_get_var(req_info->query_string,queryLen,"relaydefault",data,32)); 
+	updateStore("controller",data,mg_get_var(req_info->query_string,queryLen,"controller",data,32)); 
+	updateStore("port",data,mg_get_var(req_info->query_string,queryLen,"port",data,32)); 
+	saveStore();
 
 	return	home(conn,cbdata);
 }
