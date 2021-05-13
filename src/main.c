@@ -2,6 +2,8 @@
 #include <device.h>
 #include <devicetree.h>
 #include <drivers/gpio.h>
+#include <shell/shell.h>
+#include <libc_extensions.h>
 
 #include "web.h"
 #include "DUTCHess.h"
@@ -93,6 +95,39 @@ void saveStore(void)
 {
 	// save to flash...
 }
+static int cmd_dut_power(const struct shell *shell, size_t argc, char **argv)
+{
+	if ( argc != 1 )
+	{
+		shell_print(shell,"Usage: Please supply on/off as a parameter\n");
+	}
+	else
+	{
+		if ( strcmp(argv[1], "on"))
+		{
+			relayon();
+			shell_print(shell,"Power ON\n");
+		}
+		else if ( strcmp(argv[1], "off"))
+		{
+			relayoff();
+			shell_print(shell,"Power OFF\n");
+		}
+		else
+		{
+			shell_print(shell,"Please supply on/off\n");
+		}
+	}
+        return 0;
+}
+/* Creating subcommands (level 1 command) array for command "demo". */
+SHELL_STATIC_SUBCMD_SET_CREATE(sub_dut_power,
+        SHELL_CMD(power,   NULL, "Power command.", cmd_dut_power),
+        SHELL_SUBCMD_SET_END
+);
+/* Creating root (level 0) command "dut" */
+SHELL_CMD_REGISTER(dut, &sub_dut_power, "DUTCHess commands", NULL);
+
 
 void main (void)
 {
