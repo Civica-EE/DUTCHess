@@ -1,4 +1,5 @@
 #include "gpio.h"
+#include "fs.h"
 #include "led.h"
 #include "relay.h"
 #include "web.h"
@@ -6,6 +7,7 @@
 void main (void)
 {
     dutchess_gpio_init();
+    dutchess_fs_init();
     dutchess_led_init();
     dutchess_relay_init();
     dutchess_web_server_init();
