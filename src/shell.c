@@ -1,8 +1,7 @@
-#include <net/net_ip.h>
-#include <net/net_if.h>
 #include <shell/shell.h>
 
 #include "relay.h"
+#include "net.h"
 
 static int dutchess_relay_cmd (const struct shell *shell, size_t argc, char **argv)
 {
@@ -39,7 +38,6 @@ static int dutchess_ip_address_cmd (const struct shell *shell, size_t argc, char
     }
     else
     {
-        struct net_if *iface = NULL;
         struct in_addr addr;
 
         if (net_addr_pton(AF_INET, argv[1], &addr))
@@ -48,9 +46,7 @@ static int dutchess_ip_address_cmd (const struct shell *shell, size_t argc, char
             return -1;
         }
 
-        iface = net_if_get_default();
-
-        net_if_ipv4_addr_add(iface, &addr, NET_ADDR_MANUAL, 0);
+        dutchess_net_address_set(addr);
     }
 
     return 0;
@@ -64,7 +60,6 @@ static int dutchess_ip_netmask_cmd (const struct shell *shell, size_t argc, char
     }
     else
     {
-        struct net_if *iface = NULL;
         struct in_addr addr;
 
         if (net_addr_pton(AF_INET, argv[1], &addr))
@@ -73,9 +68,7 @@ static int dutchess_ip_netmask_cmd (const struct shell *shell, size_t argc, char
             return -1;
         }
 
-        iface = net_if_get_default();
-
-        net_if_ipv4_set_netmask(iface, &addr);
+        dutchess_net_netmask_set(addr);
     }
 
     return 0;
@@ -89,7 +82,6 @@ static int dutchess_ip_gateway_cmd (const struct shell *shell, size_t argc, char
     }
     else
     {
-        struct net_if *iface = NULL;
         struct in_addr addr;
 
         if (net_addr_pton(AF_INET, argv[1], &addr))
@@ -98,9 +90,7 @@ static int dutchess_ip_gateway_cmd (const struct shell *shell, size_t argc, char
             return -1;
         }
 
-        iface = net_if_get_default();
-
-        net_if_ipv4_set_gw(iface, &addr);
+        dutchess_net_gateway_set(addr);
     }
 
     return 0;

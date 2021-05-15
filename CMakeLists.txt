@@ -17,4 +17,5 @@ target_sources(app PRIVATE src/main.c
                            src/web.c
                            src/shell.c
                            src/fs.c
+                           src/net.c
                            lib/civetweb_libc_extensions/src/libc_extensions.c)
