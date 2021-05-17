@@ -1,0 +1,7 @@
+
+config PCT2075_DRIVER
+	bool "Enable support for the nxp pct2075 temperature sensor"
+	select CONFIG_SENSOR
+	
+config SENSOR_LOG_LEVEL
+	default 4

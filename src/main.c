@@ -3,6 +3,7 @@
 #include <devicetree.h>
 #include <drivers/gpio.h>
 #include <shell/shell.h>
+#include <drivers/sensor.h>
 #include <libc_extensions.h>
 
 #include "web.h"
@@ -120,11 +121,35 @@ static int cmd_dut_power(const struct shell *shell, size_t argc, char **argv)
 	}
         return 0;
 }
+
+static int cmd_dut_temperature(const struct shell *shell, size_t argc, char **argv)
+{
+	const struct device *dev = DEVICE_DT_GET_ANY(nxp_pct2075);
+	struct sensor_value temp;
+	if (!device_is_ready(dev)) {
+		shell_print(shell,"Device %s is not ready.\n", dev->name);
+		return -2;
+	}
+#if 0
+	int rc = sensor_channel_get(dev, SENSOR_CHAN_AMBIENT_TEMP, &temp);
+	if (rc != 0) {
+		shell_print(shell,"sensor_channel_get error: %d\n", rc);
+		return -1;
+	}
+
+	shell_print(shell,"Temp %g C\n", sensor_value_to_double(&temp));
+
+#endif
+	return 0;
+}
+
 /* Creating subcommands (level 1 command) array for command "demo". */
 SHELL_STATIC_SUBCMD_SET_CREATE(sub_dut_power,
         SHELL_CMD(power,   NULL, "Power command.", cmd_dut_power),
+        SHELL_CMD(temperature,   NULL, "Temperature command.", cmd_dut_temperature),
         SHELL_SUBCMD_SET_END
 );
+
 /* Creating root (level 0) command "dut" */
 SHELL_CMD_REGISTER(dut, &sub_dut_power, "DUTCHess commands", NULL);
 

@@ -3,6 +3,15 @@
      current-speed = <115200>;
 };
 
+&lpi2c1 {
+	pct2075@48 {
+		compatible = "nxp,pct2075";
+		reg = <0x48>;
+		label = "PCT2075";
+		status = "okay";
+	};
+};
+
 &usdhc1 {
     status = "okay";
 };
