@@ -83,6 +83,18 @@ int configure (struct mg_connection *conn, void *cbdata)
 	return	home(conn,cbdata);
 }
 
+int temperature (struct mg_connection *conn, void *cbdata)
+{
+    mg_printf(conn, HTTP_OK);
+    mg_printf(conn, "<html><body>");
+    mg_printf(conn, "<h1>DUTCHess " VERSION " Temperature %g C </h1>", getTemperature());
+
+    mg_printf(conn, "</body></html>\n");
+
+    return 200;
+}
+
+
 
 void *server (void *arg)
 {
@@ -111,6 +123,7 @@ void *server (void *arg)
     mg_set_request_handler(ctx, "/off$", turnRelayOff, 0);
     mg_set_request_handler(ctx, "/reconfigure$", reconfigure, 0);
     mg_set_request_handler(ctx, "/config$", configure, 0);
+    mg_set_request_handler(ctx, "/temperature$", temperature, 0);
 
     return 0;
 }

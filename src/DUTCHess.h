@@ -10,6 +10,7 @@
 bool relaystate(void);
 void relayon(void);
 void relayoff(void);
+double getTemperature(void);
 
 typedef struct
 {

@@ -122,28 +122,32 @@ static int cmd_dut_power(const struct shell *shell, size_t argc, char **argv)
         return 0;
 }
 
-static int cmd_dut_temperature(const struct shell *shell, size_t argc, char **argv)
+double getTemperature(void)
 {
 	const struct device *dev = DEVICE_DT_GET_ANY(nxp_pct2075);
 	struct sensor_value temp;
 	if (!device_is_ready(dev)) {
-		shell_print(shell,"Device %s is not ready.\n", dev->name);
-		return -2;
+		//shell_print(shell,"Device %s is not ready.\n", dev->name);
+		return 0;
 	}
 	int	rc = sensor_sample_fetch(dev);
 	if (rc != 0) {
-		shell_print(shell,"sensor_sample_fetch error: %d\n", rc);
-		return -3;
+		//shell_print(shell,"sensor_sample_fetch error: %d\n", rc);
+		return 0;
 	}
 
 
 	rc = sensor_channel_get(dev, SENSOR_CHAN_AMBIENT_TEMP, &temp);
 	if (rc != 0) {
-		shell_print(shell,"sensor_channel_get error: %d\n", rc);
-		return -1;
+		//shell_print(shell,"sensor_channel_get error: %d\n", rc);
+		return 0;
 	}
 
-	shell_print(shell,"Temp %g C\n", sensor_value_to_double(&temp));
+	return sensor_value_to_double(&temp);
+}
+static int cmd_dut_temperature(const struct shell *shell, size_t argc, char **argv)
+{
+	shell_print(shell,"Temp %g C\n", getTemperature());
 
 	return 0;
 }
