@@ -61,7 +61,7 @@ static inline int pct2075_temp_signed_from_reg(uint16_t reg)
 	int rv = reg & PCT2075_TEMP_ABS_MASK;
 
 	if (reg & PCT2075_TEMP_SIGN_BIT) {
-		/* Convert 12-bit 2s complement to signed negative
+		/* Convert 11-bit 2s complement to signed negative
 		 * value.
 		 */
 		rv = -(1U + (rv ^ PCT2075_TEMP_ABS_MASK));
