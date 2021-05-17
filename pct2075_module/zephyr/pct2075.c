@@ -26,7 +26,9 @@ struct pct2075_config {
 	uint16_t i2c_addr;
 };
 
-
+#define PCT2075_TEMP_SCALE_CEL 		8
+#define PCT2075_TEMP_SIGN_BIT		BIT(11)
+#define PCT2075_TEMP_ABS_MASK		((uint16_t)(PCT2075_TEMP_SIGN_BIT - 1U))
 
 int pct2075_reg_read(const struct device *dev, uint8_t reg, uint16_t *val)
 {
@@ -39,37 +41,10 @@ int pct2075_reg_read(const struct device *dev, uint8_t reg, uint16_t *val)
 	if (rc == 0) {
 		*val = sys_be16_to_cpu(*val);
 	}
-
+	// 16 bits are d10,d9,d..d0,0,0,0,0,0
+	*val >>=5; // shift down to lsb
 	return rc;
 }
-
-int pct2075_reg_write_16bit(const struct device *dev, uint8_t reg,
-			    uint16_t val)
-{
-	struct pct2075_data *data = dev->data;
-	const struct pct2075_config *cfg = dev->config;
-
-	uint8_t buf[3];
-
-	buf[0] = reg;
-	sys_put_be16(val, &buf[1]);
-
-	return i2c_write(data->i2c_master, buf, sizeof(buf), cfg->i2c_addr);
-}
-
-int pct2075_reg_write_8bit(const struct device *dev, uint8_t reg,
-			   uint8_t val)
-{
-	struct pct2075_data *data = dev->data;
-	const struct pct2075_config *cfg = dev->config;
-	uint8_t buf[2] = {
-		reg,
-		val,
-	};
-
-	return i2c_write(data->i2c_master, buf, sizeof(buf), cfg->i2c_addr);
-}
-
 
 static int pct2075_sample_fetch(const struct device *dev,
 				enum sensor_channel chan)
@@ -81,7 +56,19 @@ static int pct2075_sample_fetch(const struct device *dev,
 	return pct2075_reg_read(dev, 0, &data->reg_val);
 }
 
-#if 0
+static inline int pct2075_temp_signed_from_reg(uint16_t reg)
+{
+	int rv = reg & PCT2075_TEMP_ABS_MASK;
+
+	if (reg & PCT2075_TEMP_SIGN_BIT) {
+		/* Convert 12-bit 2s complement to signed negative
+		 * value.
+		 */
+		rv = -(1U + (rv ^ PCT2075_TEMP_ABS_MASK));
+	}
+	return rv;
+}
+
 static int pct2075_channel_get(const struct device *dev,
 			       enum sensor_channel chan,
 			       struct sensor_value *val)
@@ -91,17 +78,16 @@ static int pct2075_channel_get(const struct device *dev,
 
 	__ASSERT_NO_MSG(chan == SENSOR_CHAN_AMBIENT_TEMP);
 
-	val->val1 = temp / MCP9808_TEMP_SCALE_CEL;
-	temp -= val->val1 * MCP9808_TEMP_SCALE_CEL;
-	val->val2 = (temp * 1000000) / MCP9808_TEMP_SCALE_CEL;
+	val->val1 = temp / PCT2075_TEMP_SCALE_CEL;
+	temp -= val->val1 * PCT2075_TEMP_SCALE_CEL;
+	val->val2 = (temp * 1000000) / PCT2075_TEMP_SCALE_CEL;
 
 	return 0;
 }
-#endif
 
 static const struct sensor_driver_api pct2075_api_funcs = {
 	.sample_fetch = pct2075_sample_fetch,
-	//.channel_get = pct2075_channel_get,
+	.channel_get = pct2075_channel_get,
 };
 
 int pct2075_init(const struct device *dev)

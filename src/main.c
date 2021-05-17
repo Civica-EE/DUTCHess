@@ -130,8 +130,14 @@ static int cmd_dut_temperature(const struct shell *shell, size_t argc, char **ar
 		shell_print(shell,"Device %s is not ready.\n", dev->name);
 		return -2;
 	}
-#if 0
-	int rc = sensor_channel_get(dev, SENSOR_CHAN_AMBIENT_TEMP, &temp);
+	int	rc = sensor_sample_fetch(dev);
+	if (rc != 0) {
+		shell_print(shell,"sensor_sample_fetch error: %d\n", rc);
+		return -3;
+	}
+
+
+	rc = sensor_channel_get(dev, SENSOR_CHAN_AMBIENT_TEMP, &temp);
 	if (rc != 0) {
 		shell_print(shell,"sensor_channel_get error: %d\n", rc);
 		return -1;
@@ -139,7 +145,6 @@ static int cmd_dut_temperature(const struct shell *shell, size_t argc, char **ar
 
 	shell_print(shell,"Temp %g C\n", sensor_value_to_double(&temp));
 
-#endif
 	return 0;
 }
 
