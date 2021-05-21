@@ -18,7 +18,6 @@ int home (struct mg_connection *conn, void *cbdata)
     mg_printf(conn, HTTP_OK);
     mg_printf(conn, "<html><body>");
     mg_printf(conn, "<h1>DUTCHess " VERSION " Relay %s </h1>", relaystate()?"ON":"OFF");
-
     mg_printf(conn, "</body></html>\n");
 
     return 200;
@@ -138,5 +137,7 @@ void webStart ()
                           &stack,
                           CONFIG_MAIN_STACK_SIZE);
 
+    SAY("Starting webserver...");
+    
     pthread_create(&thread, &attr, server, 0);
 }

@@ -167,6 +167,7 @@ void main (void)
 {
     const struct device *dev;
 
+#ifdef CONFIG_BOARD_MIMXRT1020_EVK    
     if ((dev = device_get_binding(LED0)) == NULL)
     {
         return;
@@ -176,12 +177,15 @@ void main (void)
     {
         return;
     }
+#endif
 
     webStart();
 
+#ifdef CONFIG_BOARD_MIMXRT1020_EVK
     while (true)
     {
         gpio_pin_set(dev, PIN, !gpio_pin_get(dev, PIN));
         k_msleep(SLEEP_TIME_MS);
     }
+#endif
 }

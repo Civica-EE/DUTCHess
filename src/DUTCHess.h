@@ -1,6 +1,8 @@
 #ifndef DUTCHESS_H
 #define DUTCHESS_H
 
+#include <logging/log.h>
+
 #define VERSION "1.0"
 
 #define printIP(a) a&0xff, (a>>8)&0xff, (a>>16)&0xff, (a>>24)
@@ -25,5 +27,8 @@ typedef struct
 storeData_t *getStoreData(void);
 void updateStore(char *var, char *value, int valueLen);
 void saveStore(void);
+
+#define SAY(fmt, args...) printk("%s:%d: " fmt "\n", __FILE__, __LINE__, ##args)
+#define _SAY(fmt, args...) 
 #endif
 
