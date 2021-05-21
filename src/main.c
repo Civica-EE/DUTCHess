@@ -3,6 +3,7 @@
 #include "led.h"
 #include "net.h"
 #include "relay.h"
+#include "settings.h"
 #include "web.h"
 
 void main (void)
@@ -13,6 +14,10 @@ void main (void)
     dutchess_net_init();
     dutchess_relay_init();
     dutchess_web_server_init();
+
+    // Initialise the settings last as this will read the settings and call the
+    // relevant modules.
+    dutchess_settings_init();
 
     while (1)
     {
