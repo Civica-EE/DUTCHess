@@ -1,0 +1,4 @@
+&lpuart2 {
+     status = "okay";
+     current-speed = <115200>;
+};

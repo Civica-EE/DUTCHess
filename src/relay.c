@@ -4,7 +4,7 @@
 #include "gpio.h"
 #include "relay.h"
 
-#define PIN 25 // D0 on the Arduino header.
+#define PIN 22 // D7 on the Arduino header.
 
 void dutchess_relay_init ()
 {
