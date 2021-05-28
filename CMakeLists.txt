@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.13.1)
 
+list(APPEND ZEPHYR_EXTRA_MODULES
+  ${CMAKE_CURRENT_SOURCE_DIR}/pct2075
+)
+
 set(BOARD mimxrt1020_evk)
 
 include_directories(
@@ -20,4 +24,5 @@ target_sources(app PRIVATE src/main.c
                            src/net.c
                            src/settings.c
                            src/terminal_server.c
+                           src/temperature.c
                            lib/civetweb_libc_extensions/src/libc_extensions.c)

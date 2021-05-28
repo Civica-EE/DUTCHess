@@ -2,6 +2,7 @@
 
 #include "relay.h"
 #include "net.h"
+#include "temperature.h"
 
 static int dutchess_relay_cmd (const struct shell *shell, size_t argc, char **argv)
 {
@@ -96,6 +97,13 @@ static int dutchess_ip_gateway_cmd (const struct shell *shell, size_t argc, char
     return 0;
 }
 
+static int dutchess_temperature_cmd (const struct shell *shell, size_t argc, char **argv)
+{
+    shell_print(shell, "Temperature: %g C", dutchess_temperature_read());
+
+    return 0;
+}
+
 SHELL_STATIC_SUBCMD_SET_CREATE(sub_dutchess_ip,
                                SHELL_CMD(address,   NULL, "IP address command.", dutchess_ip_address_cmd),
                                SHELL_CMD(netmask,   NULL, "IP netmask command.", dutchess_ip_netmask_cmd),
@@ -104,5 +112,6 @@ SHELL_STATIC_SUBCMD_SET_CREATE(sub_dutchess_ip,
 SHELL_STATIC_SUBCMD_SET_CREATE(sub_dutchess,
                                SHELL_CMD(relay, NULL, "Relay command.", dutchess_relay_cmd),
                                SHELL_CMD(ip, &sub_dutchess_ip, "IP command.", NULL),
+                               SHELL_CMD(temperature, NULL, "Temperature command.", dutchess_temperature_cmd),
                                SHELL_SUBCMD_SET_END);
 SHELL_CMD_REGISTER(dutchess, &sub_dutchess, "DUTCHess commands", NULL);

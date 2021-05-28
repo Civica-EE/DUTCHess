@@ -4,6 +4,7 @@
 #include "net.h"
 #include "relay.h"
 #include "settings.h"
+#include "temperature.h"
 #include "terminal_server.h"
 #include "web.h"
 
@@ -37,6 +38,7 @@ void main (void)
     dutchess_led_init();
     dutchess_net_init();
     dutchess_relay_init();
+    dutchess_temperature_init();
     dutchess_terminal_server_init();
     dutchess_web_server_init();
 
