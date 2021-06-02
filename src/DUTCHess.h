@@ -3,7 +3,7 @@
 
 #include <logging/log.h>
 
-#define VERSION "1.0"
+#define DUT_VERSION "1.0"
 
 #define printIP(a) a&0xff, (a>>8)&0xff, (a>>16)&0xff, (a>>24)
 

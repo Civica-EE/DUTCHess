@@ -1,0 +1,26 @@
+/ {
+    soc {
+       uart2: uart@e38 {
+            compatible = "ns16550";
+            reg = < 0x3e8 0x100 >;
+            label =                "UART_2";
+            clock-frequency = < 0x1c2000 >;
+            interrupts = < 0x5 IRQ_TYPE_LOWEST_EDGE_RISING 0x3 >;
+            interrupt-parent = < &intc >;
+            status = "okay";
+            current-speed = < 0x1c200 >;
+        };
+
+       uart3: uart@2e8 {
+            compatible = "ns16550";
+            reg = < 0x2e8 0x100 >;
+            label =                "UART_3";
+            clock-frequency = < 0x1c2000 >;
+            interrupts = < 0x6 IRQ_TYPE_LOWEST_EDGE_RISING 0x3 >;
+            interrupt-parent = < &intc >;
+            status = "okay";
+            current-speed = < 0x1c200 >;
+        };
+
+    };
+  };

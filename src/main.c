@@ -8,6 +8,7 @@
 
 #include "web.h"
 #include "DUTCHess.h"
+#include "dut_serial.h"
 
 #define SLEEP_TIME_MS 500
 
@@ -162,12 +163,41 @@ SHELL_STATIC_SUBCMD_SET_CREATE(sub_dut_power,
 /* Creating root (level 0) command "dut" */
 SHELL_CMD_REGISTER(dut, &sub_dut_power, "DUTCHess commands", NULL);
 
+// This should come from nvram (see Zephyr:settings)
+static struct dut_serial_cfg dut_serial_cfg[] = {
+    {
+        .dev_name = "UART_2",
+        .cfg = {
+            .baudrate = 115200,
+            .parity = UART_CFG_PARITY_NONE,
+            .stop_bits = 1,
+            .data_bits = 8,
+            .flow_ctrl = UART_CFG_FLOW_CTRL_NONE
+        },
+       .tcp_port = 21500
+    },
+        
+    {
+        .dev_name = "UART_2",
+        .cfg = {
+            .baudrate = 57600,
+            .parity = UART_CFG_PARITY_NONE,
+            .stop_bits = 1,
+            .data_bits = 8,
+            .flow_ctrl = UART_CFG_FLOW_CTRL_NONE
+        },
+        .tcp_port = 25700
+    },
+        
+    DUT_SERIAL_LAST
+};
+
 
 void main (void)
 {
+#ifdef CONFIG_BOARD_MIMXRT1020_EVK    
     const struct device *dev;
 
-#ifdef CONFIG_BOARD_MIMXRT1020_EVK    
     if ((dev = device_get_binding(LED0)) == NULL)
     {
         return;
@@ -180,6 +210,8 @@ void main (void)
 #endif
 
     webStart();
+
+    dut_serial_start(dut_serial_cfg);
 
 #ifdef CONFIG_BOARD_MIMXRT1020_EVK
     while (true)

@@ -17,7 +17,7 @@ int home (struct mg_connection *conn, void *cbdata)
 {
     mg_printf(conn, HTTP_OK);
     mg_printf(conn, "<html><body>");
-    mg_printf(conn, "<h1>DUTCHess " VERSION " Relay %s </h1>", relaystate()?"ON":"OFF");
+    mg_printf(conn, "<h1>DUTCHess " DUT_VERSION " Relay %s </h1>", relaystate()?"ON":"OFF");
     mg_printf(conn, "</body></html>\n");
 
     return 200;
@@ -40,7 +40,7 @@ int reconfigure (struct mg_connection *conn, void *cbdata)
 	// generate the form for reconfiguring the settings
 	mg_printf(conn, HTTP_OK);
 	mg_printf(conn, "<html><body>");
-	mg_printf(conn, "<h1>DUTCHess " VERSION " Relay %s </h1>", relaystate()?"ON":"OFF");
+	mg_printf(conn, "<h1>DUTCHess " DUT_VERSION " Relay %s </h1>", relaystate()?"ON":"OFF");
 
 	mg_printf(conn, "<form action=\"config\" method=\"GET\">"
                         "  ip:<br>"
@@ -86,7 +86,7 @@ int temperature (struct mg_connection *conn, void *cbdata)
 {
     mg_printf(conn, HTTP_OK);
     mg_printf(conn, "<html><body>");
-    mg_printf(conn, "<h1>DUTCHess " VERSION " Temperature %g C </h1>", getTemperature());
+    mg_printf(conn, "<h1>DUTCHess " DUT_VERSION " Temperature %g C </h1>", getTemperature());
 
     mg_printf(conn, "</body></html>\n");
 
