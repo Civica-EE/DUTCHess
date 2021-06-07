@@ -1,3 +1,9 @@
+/ {
+    aliases {
+        eeprom-0 = &eeprom0;
+    };
+};
+
 &lpuart2 {
      status = "okay";
      current-speed = <115200>;
@@ -9,5 +15,14 @@
         reg = <0x48>;
         label = "PCT2075";
         status = "okay";
+    };
+    eeprom0: eeprom@50 {
+        compatible = "st,m24xxx", "atmel,at24";
+        reg = <0x50>;
+        label = "EEPROM_AT24C512";
+        size = <DT_SIZE_K(64)>;
+        pagesize = <64>;
+        address-width = <16>;
+        timeout = <5>;
     };
 };

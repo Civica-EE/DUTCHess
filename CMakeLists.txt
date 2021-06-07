@@ -26,4 +26,5 @@ target_sources(app PRIVATE src/main.c
                            src/terminal_server.c
                            src/temperature.c
                            src/tftp.c
+                           src/tftp_eeprom.c
                            lib/civetweb_libc_extensions/src/libc_extensions.c)

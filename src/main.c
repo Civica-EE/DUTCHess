@@ -7,6 +7,7 @@
 #include "temperature.h"
 #include "terminal_server.h"
 #include "tftp.h"
+#include "tftp_eeprom.h"
 #include "web.h"
 
 static struct dutchess_terminal_server_cfg dut_serial_cfg[] = {
@@ -42,6 +43,7 @@ void main (void)
     dutchess_temperature_init();
     dutchess_terminal_server_init();
     dut_start_tftpServer();
+    dut_tftp_eeprom();
     dutchess_web_server_init();
 
     // Initialise the settings last as this will read the settings and call the
