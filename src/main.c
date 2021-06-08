@@ -9,6 +9,7 @@
 #include "web.h"
 #include "DUTCHess.h"
 #include "dut_serial.h"
+#include "tftp.h"
 
 #define SLEEP_TIME_MS 500
 
@@ -212,7 +213,7 @@ void main (void)
     webStart();
 
     dut_serial_start(dut_serial_cfg);
-
+    dut_start_tftpServer();
 #ifdef CONFIG_BOARD_MIMXRT1020_EVK
     while (true)
     {
