@@ -16,6 +16,9 @@ LOG_MODULE_REGISTER(tftp_server, LOG_LEVEL_DBG);
 
 #include "tftp.h"
 
+// uncomment the next line to have a test/xxx handler
+#define TEST_HANDLER 1
+
 #if defined(CONFIG_USERSPACE)
 #include <app_memory/app_memdomain.h>
 extern struct k_mem_partition app_partition;
@@ -95,6 +98,13 @@ int timeout = 0;
 unsigned char Block[TFTP_MAX_PAYLOAD];
 unsigned char buffer[TFTP_MAX_PAYLOAD]; // line of srec bindary data
 char mode[32];
+tftpHandler *curHandler=NULL;
+unsigned int readAddr;
+unsigned int writeAddr;
+
+#define MAX_HANDLERS 5
+tftpHandler *handlers[MAX_HANDLERS];
+unsigned int noHandlers=0;
 
 void ack(unsigned char block0, unsigned char block1) 
 {
@@ -156,7 +166,7 @@ void error(int e)
 			}
 			break;
 		case 7:
-			message = "No such user";
+			message = "No such handler";
 			for (int i = 0; i < strlen(message); i++){
 				ErrorBuffer[i+4] = message[i];
 			}
@@ -170,15 +180,6 @@ bool validblock(int b, int b1, int b2)
 	if ( b == ((b1<<8)+b2))
 		return true;
 	return false;
-#if 0	
-	if (b1 > 0) {
-		if (b == b1 * b2) return true;
-		else return false;
-	} else {
-		if (b == b2) return true;
-		else return false;
-	}
-#endif
 }
 void sendBlock(unsigned short int no_block, unsigned char *packetBuffer, int sock, struct sockaddr *client_addr, socklen_t client_addr_len)
 {
@@ -186,50 +187,58 @@ void sendBlock(unsigned short int no_block, unsigned char *packetBuffer, int soc
 	timeout = 0;
 	packetBuffer[0] = 0;
 	packetBuffer[1] = 3;
-#if 0
-	if(no_block<256){
-		packetBuffer[2] = 0;
-		packetBuffer[3] = no_block;
-	} else {
-		int b2 = no_block/256;
-		packetBuffer[2] = b2;
-		packetBuffer[3] = 255;
-	}
-#endif
 	packetBuffer[2] = no_block >> 8;
 	packetBuffer[3] = no_block & 0xff;
-	if ( no_block <= (1024*32)/TFTP_MAX_PAYLOAD)
-	{
-		//only do this up to 32K
-		unsigned short ma=(no_block-1)<<9;
-
-#if 0
-
-		while ( i!=TFTP_PACKET_MAX_SIZE)
-		{
-			Wire.beginTransmission(0x50); // transmit to device #44 (0x2c)
-			// device address is specified in datasheet
-			Wire.write(ma>>8);             // sends value byte  
-			Wire.write(ma&0xff);             // sends value byte  
-			Wire.endTransmission();     // stop transmitting
-
-			Wire.requestFrom(0x50, 1);
-			while (!Wire.available()) {}
-			{ // slave may send less than requested
-				unsigned char c = Wire.read(); // receive a byte as character
-				packetBuffer[i] = c;//archive.read();
-				len++;;
-				ma++;
-			}
-		}
-#else
-		// test code
-		len = TFTP_PACKET_MAX_SIZE;
-#endif
-	}
-	NET_INFO("sending packet");
+	len+=curHandler->read(&readAddr, &packetBuffer[4], TFTP_PACKET_MAX_SIZE-len);
+	NET_INFO("sending packet %d", len);
 	sendto(sock,packetBuffer,len,0,client_addr, client_addr_len); 
 
+}
+
+void registerHandler(tftpHandler *client)
+{
+	if ( noHandlers < MAX_HANDLERS)
+	{
+		NET_INFO("Registered %s as %d", log_strdup(client->id), noHandlers);
+		handlers[noHandlers]=client;
+		noHandlers++;
+	}
+	else
+	{
+		NET_ERR("Cannot register %s\n", client->id);
+	}
+}
+tftpHandler *getHandler(char *filename)
+{
+	// NB we alter filename in this function to split it up...
+	char *ptr=filename;
+	int i;
+	while ( *ptr != 0 )
+	{
+		if ( *ptr == '/')
+			break; //got it
+		ptr++;
+	}
+	if ( *ptr ==0 )
+	{
+		NET_INFO("Cannot find handler for %s\n", log_strdup(filename));
+		return NULL; // no need to look as there cant be a handler for this
+	}
+
+	*ptr=0;
+	ptr++; // this is the rest of the filename which we send to the handler...if we find one
+	
+
+	for (i=0;i< noHandlers;i++)
+	{
+		if (strcmp(handlers[i]->id, filename) == 0 )
+		{
+			if ( handlers[i]->open(ptr) == 0)
+				return handlers[i];
+		}
+	}
+	NET_INFO("Cannot find handler for %s\n", log_strdup(filename));
+	return NULL ; // we cant do this
 }
 
 void tftp_packet(int sock,unsigned char *packetBuffer,int packetSize, struct sockaddr *client_addr, socklen_t client_addr_len) 
@@ -245,35 +254,25 @@ void tftp_packet(int sock,unsigned char *packetBuffer,int packetSize, struct soc
 			NET_INFO("RRQ Start a read request");
 			strcpy(filename,  &packetBuffer[2]);
 			NET_INFO("Filename : %s",log_strdup( filename));
+			curHandler=getHandler(filename);;
+			if ( curHandler == NULL )
+			{
+				error(7);
+				NET_INFO("No Handler detected");
+
+				sendto(sock,ErrorBuffer,TFTP_PACKET_MAX_SIZE,0,client_addr, client_addr_len);
+				return;
+			}
+
+			// ok we have a handler for this type of filename
 			no_block = 1;
 			packetBuffer[0] = 0;
 			packetBuffer[1] = 3;
 			packetBuffer[2] = 0;
 			packetBuffer[3] = no_block;
-			int i = 4;
-			unsigned short ma=0;
-#if 0
-			while ( i!=TFTP_PACKET_MAX_SIZE)
-			{
-				Wire.beginTransmission(0x50); // transmit to device #44 (0x2c)
-				// device address is specified in datasheet
-				Wire.write(ma>>8);             // sends value byte  
-				Wire.write(ma&0xff);           	delay(5);
-				// sends value byte  
-				Wire.endTransmission();     // stop transmitting
-
-				Wire.requestFrom(0x50, 1);
-				while (!Wire.available()) {}
-				{ // slave may send less than requested
-					unsigned char c = Wire.read(); // receive a byte as character
-					packetBuffer[i] = c;//archive.read();
-					ma++;
-					i++;;
-				}
-			}
-#endif
-
-			sendto(sock,packetBuffer,TFTP_PACKET_MAX_SIZE,0,client_addr, client_addr_len); 
+			readAddr=0;
+			int len=4+curHandler->read(&readAddr, &packetBuffer[4], TFTP_PACKET_MAX_SIZE-4);
+			sendto(sock,packetBuffer,len,0,client_addr, client_addr_len); 
 
 
 			// was it a start Write?
@@ -284,25 +283,20 @@ void tftp_packet(int sock,unsigned char *packetBuffer,int packetSize, struct soc
 			}
 			strcpy(filename,  &packetBuffer[2]);
 			strcpy(mode,  &packetBuffer[2+strlen(filename)+1]);
-			ack(0,0);
 			NET_INFO("Filename : %s Mode %s", log_strdup(filename),log_strdup(mode));
-
-#if 0
-			if (probe() == 0)
+			curHandler=getHandler(filename);;
+			if ( curHandler == NULL )
 			{
-				error(5);
-				Serial.println("No I2C device detected");
+				error(7);
+				NET_INFO("No Handler detected");
 
-				Udp.beginPacket(remote, Udp.remotePort());
-				Udp.write(ErrorBuffer, TFTP_PACKET_MAX_SIZE);
-				Udp.endPacket();
+				sendto(sock,ErrorBuffer,TFTP_PACKET_MAX_SIZE,0,client_addr, client_addr_len);
 				return;
 			}
-			else
-			{
-				Serial.println("Found I2C device");
-			}
-#endif
+
+			ack(0,0);
+			writeAddr=0;
+
 			if ( strcmp(mode,"octet")==0)
 			{
 				sendto(sock,ReplyBuffer,TFTP_ACK_SIZE,0,client_addr, client_addr_len); 
@@ -322,16 +316,15 @@ void tftp_packet(int sock,unsigned char *packetBuffer,int packetSize, struct soc
 			timeout = 0;
 			if (validblock(no_block, (int)packetBuffer[2], (int)packetBuffer[3])) {
 				ack(packetBuffer[2],packetBuffer[3]);
-				unsigned short ma= (no_block-1)<<9;
-				memcpy(buffer,&packetBuffer[4],packetSize-4);
-#if 0
-				writedata(ma, packetSize-4);
+				readAddr=writeAddr;
+				curHandler->write(&writeAddr,&packetBuffer[4],packetSize-4);
 				// now verify what we wrote (if indeed we did write it)
-				readdata(ma,packetSize-4);
+
+				curHandler->read(&readAddr,&Block[4],packetSize-4);
 				int i;
-				for ( i=0;i < packetSize-4;i++)
+				for ( i=4;i < packetSize;i++)
 				{
-					if ( buffer[i] != Block[i] )
+					if ( packetBuffer[i] != Block[i] )
 					{
 						NET_INFO("Failure in verification.Different %d",i);
 						error(4);
@@ -340,7 +333,6 @@ void tftp_packet(int sock,unsigned char *packetBuffer,int packetSize, struct soc
 					}
 
 				}
-#endif
 
 				if (packetSize < 516){
 					flagW = 0;
@@ -470,6 +462,7 @@ static void process_udp4(void)
 	}
 }
 
+
 static void print_stats(struct k_work *work)
 {
 	struct data *data = CONTAINER_OF(work, struct data, udp.stats_print);
@@ -490,6 +483,40 @@ static void print_stats(struct k_work *work)
 	k_work_reschedule(&data->udp.stats_print, K_SECONDS(STATS_TIMER));
 }
 
+#ifdef TEST_HANDLER
+unsigned char mybuf[ TFTP_MAX_PAYLOAD];
+int testOpen(char *filename)
+{
+	int i;
+	NET_INFO("Test Handler asked for %s\n", log_strdup(filename));
+	for (i=0;i<TFTP_MAX_PAYLOAD;i++)
+		mybuf[i]=i;
+	return 0;
+}
+int testRead(unsigned int *addr, unsigned char *buf, unsigned int len)
+{
+	NET_INFO("read %x", *addr);
+	if ( *addr >= 0x8000)
+		return 0;
+	memcpy(buf,mybuf,len);
+	*addr+=len;
+	return len;
+}
+int testWrite(unsigned int *addr, unsigned char *buf, unsigned int len)
+{
+	NET_INFO("write %x", *addr);
+	memcpy(mybuf,buf,len);
+	*addr+=len;
+	return len;
+}
+tftpHandler testHandler=
+{
+	.id="test",
+	.open=testOpen,
+	.read=testRead,
+	.write=testWrite,
+};
+#endif
 void dut_start_tftpServer(void)
 {
 	if (IS_ENABLED(CONFIG_NET_IPV4)) {
@@ -501,6 +528,9 @@ void dut_start_tftpServer(void)
 		k_thread_name_set(udp4_thread_id, "udp4");
 		k_thread_start(udp4_thread_id);
 	}
+#ifdef TEST_HANDLER
+	registerHandler(&testHandler);
+#endif
 }
 
 void dut_stop_tftpServer(void)
