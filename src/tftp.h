@@ -13,4 +13,6 @@ typedef struct
 	readDataType read;
 	writeDataType write;
 } tftpHandler;
+void registerHandler(tftpHandler *client);
+
 #endif

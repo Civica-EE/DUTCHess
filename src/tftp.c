@@ -13,6 +13,7 @@ LOG_MODULE_REGISTER(tftp_server, LOG_LEVEL_DBG);
 #include <net/net_mgmt.h>
 #include <net/net_event.h>
 #include <net/net_conn_mgr.h>
+#include <net/socket.h>
 
 #include "tftp.h"
 
@@ -541,7 +542,7 @@ void dut_stop_tftpServer(void)
 	if (IS_ENABLED(CONFIG_NET_IPV4)) {
 		k_thread_abort(udp4_thread_id);
 		if (conf.ipv4.udp.sock >= 0) {
-			(void)close(conf.ipv4.udp.sock);
+			zsock_close(conf.ipv4.udp.sock);
 		}
 	}
 }

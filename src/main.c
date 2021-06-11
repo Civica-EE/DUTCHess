@@ -214,6 +214,7 @@ void main (void)
 
     dut_serial_start(dut_serial_cfg);
     dut_start_tftpServer();
+    dut_tftp_eeprom();
 #ifdef CONFIG_BOARD_MIMXRT1020_EVK
     while (true)
     {

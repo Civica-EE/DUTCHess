@@ -30,5 +30,7 @@ void saveStore(void);
 
 #define SAY(fmt, args...) printk("%s:%d: " fmt "\n", __FILE__, __LINE__, ##args)
 #define _SAY(fmt, args...) 
+
+void dut_tftp_eeprom(void);
 #endif
 
