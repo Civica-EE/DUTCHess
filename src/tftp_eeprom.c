@@ -8,19 +8,22 @@ size_t eeprom_size;
 
 int eepromOpen(char *filename)
 {
-	return 0;
+	unsigned char buf[1];
+	return eeprom_read( dev, 0 , buf, 1);
 }
 int eepromRead(unsigned int *addr, unsigned char *buf, unsigned int len)
 {
 	if ( *addr > eeprom_size )
 		return 0;
-	eeprom_read( dev, *addr, buf, len);
+	if (eeprom_read( dev, *addr, buf, len)<0 )
+		return 0;
 	*addr+=len;
 	return len;
 }
 int eepromWrite(unsigned int *addr, unsigned char *buf, unsigned int len)
 {
-	eeprom_write( dev, *addr, buf, len);
+	if (eeprom_write( dev, *addr, buf, len)<0)
+		return 0;
 	*addr+=len;
 	return len;
 }
