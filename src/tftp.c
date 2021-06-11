@@ -161,7 +161,7 @@ void error(int e)
 			}
 			break;
 		case 6:
-			message = "File already exists";
+			message = "Could not open file";
 			for (int i = 0; i < strlen(message); i++){
 				ErrorBuffer[i+4] = message[i];
 			}
@@ -234,8 +234,7 @@ tftpHandler *getHandler(char *filename)
 	{
 		if (strcmp(handlers[i]->id, filename) == 0 )
 		{
-			if ( handlers[i]->open(ptr) == 0)
-				return handlers[i];
+			return handlers[i];
 		}
 	}
 	NET_INFO("Cannot find handler for %s\n", log_strdup(filename));
@@ -294,6 +293,14 @@ void tftp_packet(int sock,unsigned char *packetBuffer,int packetSize, struct soc
 				sendto(sock,ErrorBuffer,TFTP_PACKET_MAX_SIZE,0,client_addr, client_addr_len);
 				return;
 			}
+			if ( curHandler->open(filename) < 0)
+			{
+				error(6);
+				NET_INFO("Could not open file");
+				sendto(sock,ErrorBuffer,TFTP_PACKET_MAX_SIZE,0,client_addr, client_addr_len);
+				return;
+			}
+
 
 			ack(0,0);
 			writeAddr=0;
