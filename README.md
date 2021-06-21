@@ -22,16 +22,17 @@ Based on the MIMXRT1020 Evaluation Kit, DUTCHess provides the following features
 ### Hardware
 DUTCHess is based on the NXP MIMXRT1020 Evaluation Kit (EVK) which has a slew of useful hardware features.  The most notable of these for this project is the networking capability, enabling DUTCHess to provide a remote endpoint from which to connect to a DUT.  Hardware required is as follows:
  - NXP MIMXRT1020 EVK
- ![Image not found!](https://www.nxp.com/assets/images/en/block-diagrams/MIMXRT-1020-EVKBD2.jpg "")
+<img src="https://www.nxp.com/assets/images/en/block-diagrams/MIMXRT-1020-EVKBD2.jpg" width="600">
  - PCT2075 Arduino Shield
- ![Image not found!](https://www.nxp.com/assets/images/en/dev-board-image/PCT2075DP-ARD-ISO.jpg "")
+ <img src="https://www.nxp.com/assets/images/en/dev-board-image/PCT2075DP-ARD-ISO.jpg" width="600">
  - UART to RS232 Level Shifter Board (DE-9 Connector)
- ![Image not found!](https://imgaz2.staticbg.com/thumb/large/oaupload/ser1/banggood/images/DF/AB/3acd3e6d-b33b-4f00-b051-ab958f8b9c63.JPG.webp "")
+ <img src="https://imgaz2.staticbg.com/thumb/large/oaupload/ser1/banggood/images/DF/AB/3acd3e6d-b33b-4f00-b051-ab958f8b9c63.JPG.webp" width="600">
  - Isolated Relay Board
- ![Image not found!](https://www.elecrow.com/pub/media/catalog/product/cache/f8158826193ba5faa8b862a9bd1eb9e9/1/4/14005719500_1.jpg "")
+ <img src="https://www.elecrow.com/pub/media/catalog/product/cache/f8158826193ba5faa8b862a9bd1eb9e9/1/4/14005719500_1.jpg" width="600">
 
 The full prototype setup is pictured below:
-![Image not found!](https://raw.githubusercontent.com/Civica-EE/DUTCHess/main/docs/prototype.png "")
+
+<img src="https://raw.githubusercontent.com/Civica-EE/DUTCHess/main/docs/prototype.png" width="600">
 
 ### Software
 DUTCHess is written in C and relies on [Zephyr](https://www.zephyrproject.org/) to provide a Realtime OS (RTOS) under-the-hood.  Using Zephyr allows DUTCHess to be extremely modular and extensible; it is also easy to contribute to Zephyr as we have already proven by adding the SD card support for the MIMXRT1020 EVK which this project makes use of.
